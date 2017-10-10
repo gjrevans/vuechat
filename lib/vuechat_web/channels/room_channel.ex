@@ -37,7 +37,7 @@ defmodule VuechatWeb.RoomChannel do
     })
     push socket, "presence_state", Presence.list(socket)
 
-    messages = Vuechat.Repo.all(Message, limit: 10)
+    messages = Vuechat.Repo.all(Message, limit: 10, order_by: [desc: :inserted_at])
 
     Enum.each(messages, fn message ->
       push socket, "new_msg", %{

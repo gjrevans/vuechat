@@ -17,30 +17,8 @@
       </div>
     </div>
     <div id="main-container" v-else>
-      <div id="users-list">
-        <h3 class="text-white">Online</h3>
-        <ul>
-          <transition-group name="user-appear">
-            <li v-for="user in users" v-bind:key="user.user">
-              {{user.user}} ({{user.online_at}})
-            </li>
-          </transition-group>
-        </ul>
-      </div>
-      <div id="messages-list">
-        <h3>Messages</h3>
-        <ul>
-          <transition-group name="message-appear">
-            <li v-for="message in messages" v-bind:key="message">
-              <div class="message-metadata">
-                <span class="username">{{message.username}}</span>
-                <span class="received-at">{{message.received_at}}</span>
-              </div>
-              {{message.body}}
-            </li>
-          </transition-group>
-        </ul>
-      </div>
+      <users-list/>
+      <messages-list/>
       <div id="your-message">
         <strong>{{username}}:</strong><br/>
         <input type="text" placeholder="What do you have to say?" v-model="message" v-on:keyup.13="sendMessage">
@@ -51,6 +29,8 @@
 
 <script>
 import {Socket, Presence} from "phoenix"
+import UsersList from "./users-list"
+import MessagesList from "./messages-list"
 
 export default {
   data() {
@@ -63,6 +43,10 @@ export default {
       enterName: true,
       users: []
     }
+  },
+  components: {
+    'users-list': UsersList,
+    'messages-list': MessagesList
   },
   methods: {
     sendMessage() {
@@ -77,8 +61,7 @@ export default {
 
       this.channel = this.socket.channel("room:lobby", {})
       this.channel.on("new_msg", payload => {
-        payload.received_at = new Date(payload.received_at*1000).toLocaleString();
-        this.messages.push(payload);
+        this.$store.commit('addMessage', { payload });
       });
 
       this.channel.on("presence_state", state => {
@@ -96,15 +79,11 @@ export default {
         .receive("error", response => { console.log("Unable to join", response) })
     },
     assignUsers(presences) {
-      let formatTimestamp = (timestamp) => {
-        timestamp = parseInt(timestamp)
-        let date = new Date(timestamp)
-        return date.toLocaleTimeString()
-      }
-      this.users = Presence.list(presences, (user, {metas: metas}) => {
-        return { user: user, online_at: formatTimestamp(metas[0].online_at) }
+      let users = Presence.list(presences, (user, {metas: metas}) => {
+        return { name: user, online_at: metas[0].online_at }
       })
-    },
+      this.$store.commit('addUsers', { users })
+    }
   }
 }
 </script>
