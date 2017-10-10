@@ -1,6 +1,8 @@
 defmodule VuechatWeb.RoomChannel do
+  import Ecto
   use VuechatWeb, :channel
   alias VuechatWeb.Presence
+  alias VuechatWeb.Message
 
   def join("room:lobby", _, socket) do
     send self(), :after_join
@@ -12,10 +14,15 @@ defmodule VuechatWeb.RoomChannel do
   end
 
   def handle_in("new_msg", %{"body" => body}, socket) do
-    broadcast! socket, "new_msg", %{
+    message = %{
       body: body,
-      username: socket.assigns.username
+      username: socket.assigns.username,
+      received_at: System.system_time(:seconds)
     }
+    broadcast! socket, "new_msg", message
+    %Message{body: message.body, username: message.username}
+      |> Vuechat.Repo.insert
+
     {:noreply, socket}
   end
 
@@ -29,6 +36,17 @@ defmodule VuechatWeb.RoomChannel do
       online_at: inspect(System.system_time(:seconds))
     })
     push socket, "presence_state", Presence.list(socket)
+
+    messages = Vuechat.Repo.all(Message, limit: 10)
+
+    Enum.each(messages, fn message ->
+      push socket, "new_msg", %{
+        "body" => message.body,
+        "username" => message.username,
+        "received_at" => message.inserted_at |> NaiveDateTime.to_erl |> :calendar.datetime_to_gregorian_seconds |> Kernel.-(62_167_219_200)
+      }
+    end)
+
     {:noreply, socket}
   end
 end

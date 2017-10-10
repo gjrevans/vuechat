@@ -48,6 +48,9 @@ exports.config = {
       // Do not use ES6 compiler in vendor code
       ignore: [/vendor/]
     },
+    sass: {
+      mode: "native" // This is the important part!
+    },
     vue: {
       extractCSS: true,
       out: '../priv/static/css/components.css'
