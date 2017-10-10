@@ -1,7 +1,9 @@
 defmodule VuechatWeb.RoomChannel do
   use VuechatWeb, :channel
+  alias VuechatWeb.Presence
 
-  def join("room:lobby", payload, socket) do
+  def join("room:lobby", _, socket) do
+    send self(), :after_join
     {:ok, socket}
   end
 
@@ -19,6 +21,14 @@ defmodule VuechatWeb.RoomChannel do
 
   def handle_out("new_msg", payload, socket) do
     push socket, "new_msg", payload
+    {:noreply, socket}
+  end
+
+  def handle_info(:after_join, socket) do
+    {:ok, _} = Presence.track(socket, socket.assigns.username, %{
+      online_at: inspect(System.system_time(:seconds))
+    })
+    push socket, "presence_state", Presence.list(socket)
     {:noreply, socket}
   end
 end

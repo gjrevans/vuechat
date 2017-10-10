@@ -1,0 +1,84 @@
+.my-app {
+  #users-list {
+    background-color: #007bff;
+    width: 20rem;
+    overflow-y: scroll;
+    height: 100vh;
+    h3 {
+      font-size: 0.9em;
+      margin-left: 10px;
+      color: rgba(255, 255, 255, 0.7);
+    }
+    ul {
+      list-style: none;
+      padding-left: 20px;
+      color: rgba(255, 255, 255, 0.9);
+      li {
+        &.user-appear-enter-active,
+        &.user-appear-leave-active {
+          transition: all .2s
+        }
+        &.user-appear-enter,
+        &.user-appear-leave-active {
+          opacity: 0;
+          transform: translateX(-15px);
+        }
+      }
+    }
+  }
+  #messages-list {
+    padding-top: 20px;
+    padding-left: 20px;
+    float: left;
+    ul {
+      list-style: none;
+      padding: 0;
+      li {
+        padding: 5px 0;
+        .message-metadata {
+          .username {
+            font-weight: bold;
+          }
+          .received-at {
+            color: rgba(0, 0, 0, 0.4);
+            margin-left: 5px;
+            font-size: 0.9em;
+          }
+        }
+        &.message-appear-enter-active,
+        &.message-appear-leave-active {
+          transition: all .2s
+        }
+        &.message-appear-enter,
+        &.message-appear-leave-active {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+      }
+    }
+  }
+  #main-container {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    overflow: hidden;
+  }
+  #your-message {
+    right: 0;
+    bottom: 0;
+    left: 20rem;
+    position: fixed;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 15px;
+    input {
+      width: 100%;
+      padding: 5px 8px;
+      border-radius: 3px;
+      outline: 0;
+      border: 1px solid #ddd;
+    }
+  }
+}

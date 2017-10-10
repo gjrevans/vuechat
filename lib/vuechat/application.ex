@@ -12,6 +12,7 @@ defmodule Vuechat.Application do
       supervisor(Vuechat.Repo, []),
       # Start the endpoint when the application starts
       supervisor(VuechatWeb.Endpoint, []),
+      supervisor(VuechatWeb.Presence, []),
       # Start your own worker by calling: Vuechat.Worker.start_link(arg1, arg2, arg3)
       # worker(Vuechat.Worker, [arg1, arg2, arg3]),
     ]
